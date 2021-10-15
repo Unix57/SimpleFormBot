@@ -324,7 +324,7 @@ set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Nj
 set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 
 set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
-set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKEN}"
+set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKEN}/"
 
 
 @app.route("/")
@@ -349,4 +349,3 @@ if __name__ == "__main__":
     # port = int(os.environ.get("PORT", 8443))
 
     app.run(host="0.0.0.0", port=8443, threaded=True, debug=True)
-
