@@ -324,7 +324,7 @@ set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Nj
 set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 
 set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
-set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/{tgm_bot_token}/"
+set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/{tgm_bot_token}"
 
 
 @app.route("/")
@@ -333,7 +333,7 @@ def webhook():
     bot.remove_webhook()
     # print("WebHook_Set")
     # bot.set_webhook(url=set_webhook_url_test)
-    bot.set_webhook(url=set_webhook_url_heroku)
+    bot.set_webhook(url=set_webhook_url_heroku, ip_address="0.0.0.0")
 
     return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
 
@@ -348,4 +348,4 @@ if __name__ == "__main__":
     # t.start()
     # port = int(os.environ.get("PORT", 8443))
 
-    app.run(host="127.0.0.1", port=8443, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8443, threaded=True, debug=True)
