@@ -38,10 +38,10 @@ db_conn_name = "bot_local_sqlite3.db"
 
 if __name__ == "__main__":
     if os.path.exists(db_conn_name):
-        logging.info(f"--- DATABASE | {db_conn_name} | EXISTS --- NO ESTABLISHMENT NEEDED ---")
+        logging.warning(f"--- DATABASE | {db_conn_name} | EXISTS --- NO ESTABLISHMENT NEEDED ---")
     else:
         local_db.db_establish(db_conn_name)
-        logging.info(f"--- DATABASE | {db_conn_name} | ESTABLISHED ---")
+        logging.warning(f"--- DB FILE CREATED --- DATABASE | {db_conn_name} | ESTABLISHED ---")
 
 
 # KEYBOARDS
