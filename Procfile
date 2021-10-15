@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:8443 bot_app
+worker: gunicorn --bind 0.0.0.0:8443 bot_app:app
