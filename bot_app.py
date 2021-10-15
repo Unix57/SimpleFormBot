@@ -1,11 +1,14 @@
 # BUILT-IN MODULES
 import os
 import logging
+# import time
+# import sched
+# import threading
+
 
 # EXTERNAL MODULES
-import requests
+# import requests
 import telebot
-
 from flask import Flask, request
 from flask_sslify import SSLify
 
@@ -329,7 +332,7 @@ def webhook():
     # print("WebHook_Remove")
     bot.remove_webhook()
     # print("WebHook_Set")
-    # bot.set_webhook(url=f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/")
+    # bot.set_webhook(url=set_webhook_url_test)
     bot.set_webhook(url=set_webhook_url_heroku)
 
     return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
@@ -338,5 +341,11 @@ def webhook():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8443, threaded=True, debug=True)
-    # requests.get(set_webhook_url_heroku)
+    # scheduler = sched.scheduler(time.time, time.sleep)
+    # # requests.get(set_webhook_url_heroku)
+    # scheduler.enter(10, 1, requests.get, (set_webhook_url_heroku,))
+    # t = threading.Thread(target=scheduler.run)
+    # t.start()
+
+    app.run(host="127.0.0.1", port=8443, threaded=True, debug=True)
+
