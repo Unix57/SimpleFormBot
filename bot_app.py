@@ -309,7 +309,7 @@ def get_message():
 
     bot.process_new_updates([update])
 
-    return "FLASK-APP_TGM_BOT_ROUTE", 200
+    return "FLASK-APP_TGM-BOT_ROUTE", 200
 
 
 test_webhook_url = "https://9c55-31-40-108-124.ngrok.io"
@@ -323,7 +323,7 @@ def webhook():
     bot.remove_webhook()
     # print("WebHook_Set")
     # bot.set_webhook(url=f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/")
-    bot.set_webhook(url=f"https://{heroku_app_name}.herokuapp.com:8443/{tgm_bot_token}")
+    bot.set_webhook(url=f"https://{HEROKU_APP_NAME}.herokuapp.com:8443/{TGM_BOT_TOKEN}")
 
     return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
 
