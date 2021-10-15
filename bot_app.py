@@ -333,7 +333,7 @@ def webhook():
     bot.remove_webhook()
     # print("WebHook_Set")
     # bot.set_webhook(url=set_webhook_url_test)
-    bot.set_webhook(url=set_webhook_url_heroku, ip_address="0.0.0.0")
+    bot.set_webhook(url=set_webhook_url_heroku)
 
     return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
 
@@ -346,6 +346,6 @@ if __name__ == "__main__":
     # scheduler.enter(10, 1, requests.get, (set_webhook_url_heroku,))
     # t = threading.Thread(target=scheduler.run)
     # t.start()
-    # port = int(os.environ.get("PORT", 8443))
 
-    app.run(host="0.0.0.0", port=8443, threaded=True, debug=True)
+    port = int(os.environ.get("PORT", 8443))
+    app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
