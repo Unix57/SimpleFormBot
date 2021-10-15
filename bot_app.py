@@ -166,7 +166,15 @@ class UserPolling:
 @bot.message_handler(commands=["menu"])
 def menu_msg(message):
     local_db.UserDataCRUD.upd_user_state(db_conn_name, user_states_dict["state_default"], message.chat.id)
-    bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
+    user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
+
+    if user_reg_flag:
+        bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
+    else:
+        bot.send_message(message.chat.id,
+                         "Функція меню доступна лише зареєстрованим користувачам.\n"
+                         "Для реєстрації пройдіть коротке анкетування.\n\n"
+                         "Пройти анкетування можна за командою /start.")
 
 
 @bot.message_handler(func=lambda message: True, content_types=["text"])
