@@ -346,6 +346,7 @@ if __name__ == "__main__":
     # scheduler.enter(10, 1, requests.get, (set_webhook_url_heroku,))
     # t = threading.Thread(target=scheduler.run)
     # t.start()
+    # port = int(os.environ.get("PORT", 8443))
 
-    app.run(host="127.0.0.1", port=8443, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8443, threaded=True, debug=True)
 
