@@ -160,7 +160,7 @@ class UserPolling:
     def cancel_user_polling(message):
         bot.send_message(message.chat.id, "Введення даних скасовано.\n"
                                           "Натисніть /start для початку анкетування.")
-        bot.register_next_step_handler(message, start_msg)
+        # bot.register_next_step_handler(message, start_msg)
 
 
 @bot.message_handler(commands=["menu"])
