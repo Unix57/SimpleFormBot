@@ -61,9 +61,11 @@ user_states_dict = {
 
 @bot.message_handler(commands=["start"])
 def start_msg(message):
+    bot.register_next_step_handler(message, UserPolling.get_user_name)
+
     user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
 
-    if not user_reg_flag:
+    if not user_reg_flag[0]:
         local_db.UserDataCRUD.add_new_user(db_conn_name, message.chat.id)
         bot.send_message(message.chat.id,
                          "Вітаю у @simpleform4_bot.\n"
@@ -74,8 +76,6 @@ def start_msg(message):
                          "Повторне анкетування.\n"
                          "Будь ласка введіть Ваше ім'я:",
                          reply_markup=kb_reset)
-
-    bot.register_next_step_handler(message, UserPolling.get_user_name)
 
 
 class UserPolling:
