@@ -314,58 +314,67 @@ class SettingsMenu:
             bot.register_next_step_handler(message, SettingsMenu.change_user_gender)
 
 
-@app.route(f"/bot/", methods=["POST"])
-def get_message():
-    # json_string = request.get_data().decode("utf-8")
-    # # logging.debug(f"--- JSON-STRING --- {json_string}")
-    #
-    # update = telebot.types.Update.de_json(json_string)
-    # # logging.debug(f"--- UPDATE --- {update}")
-    #
-    # bot.process_new_updates([update])
-
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-
-    return "FLASK-APP_TGM-BOT_ROUTE", 200
-
-
 # test_webhook_url = "https://9c55-31-40-108-124.ngrok.io"
 tgm_bot_token = "2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18"
 heroku_app_name = "simple-form-bot-v1"
 
-set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
-set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
+# set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
+# set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 
-# set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
-# set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/{tgm_bot_token}/"
+set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
+set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/bot/"
 
 
-@app.route("/", methods=["GET"])
-def webhook():
-    # print("WebHook_Remove")
-    bot.remove_webhook()
-    # print("WebHook_Set")
-    # bot.set_webhook(url=set_webhook_url_test)
-    # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/{tgm_bot_token}/"
-    set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
-    bot.set_webhook(url=set_webhook_url_heroku)
+if "HEROKU_DEPLOY" in list(os.environ.keys()):
+    @app.route(f"/bot/", methods=["POST"])
+    def get_message():
+        # json_string = request.get_data().decode("utf-8")
+        # # logging.debug(f"--- JSON-STRING --- {json_string}")
+        #
+        # update = telebot.types.Update.de_json(json_string)
+        # # logging.debug(f"--- UPDATE --- {update}")
+        #
+        # bot.process_new_updates([update])
 
-    return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
+        bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
 
-# requests.get(set_webhook_url_heroku)
+        return "FLASK-APP_TGM-BOT_ROUTE", 200
 
+
+    @app.route("/", methods=["GET"])
+    def webhook():
+        bot.remove_webhook()
+        logging.debug("--- WEBHOOK --- REMOVE-WEBHOOK")
+
+        # set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
+        # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
+
+        bot.set_webhook(url=set_webhook_url_heroku)
+        logging.debug("--- WEBHOOK --- SET-WEBHOOK")
+
+        return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
+
+    # bot.remove_webhook()
+    logging.debug("HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK")
+
+    # set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
+    # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
+
+    # bot.set_webhook(url=set_webhook_url_heroku)
+    logging.debug("HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK")
+
+else:
+    pass
+    # bot.remove_webhook()
+    # bot.polling(non_stop=True)
+
+# --- HEROKU ---
+# Procfile PROD - web: gunicorn --bind 0.0.0.0:$PORT bot_app:app
+# Procfile TEST - web: python bot_app.py runserver 0.0.0.0:$PORT
 
 if __name__ == "__main__":
-    # scheduler = sched.scheduler(time.time, time.sleep)
-    # # requests.get(set_webhook_url_heroku)
-    # scheduler.enter(10, 1, requests.get, (set_webhook_url_heroku,))
-    # t = threading.Thread(target=scheduler.run)
-    # t.start()
-
     port = int(os.environ.get("PORT", 8443))
     app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
-    # Procfile - web: gunicorn --bind 0.0.0.0:${PORT} bot_app:app
-    # Procfile - web: python bot_app.py
 
     # bot.remove_webhook()
     # bot.polling(non_stop=True)
