@@ -314,15 +314,17 @@ class SettingsMenu:
             bot.register_next_step_handler(message, SettingsMenu.change_user_gender)
 
 
-@app.route(f"/{TGM_BOT_TOKEN}/", methods=["POST"])
+@app.route(f"/bot/", methods=["POST"])
 def get_message():
-    json_string = request.get_data().decode("utf-8")
-    # logging.debug(f"--- JSON-STRING --- {json_string}")
+    # json_string = request.get_data().decode("utf-8")
+    # # logging.debug(f"--- JSON-STRING --- {json_string}")
+    #
+    # update = telebot.types.Update.de_json(json_string)
+    # # logging.debug(f"--- UPDATE --- {update}")
+    #
+    # bot.process_new_updates([update])
 
-    update = telebot.types.Update.de_json(json_string)
-    # logging.debug(f"--- UPDATE --- {update}")
-
-    bot.process_new_updates([update])
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
 
     return "FLASK-APP_TGM-BOT_ROUTE", 200
 
@@ -344,7 +346,8 @@ def webhook():
     bot.remove_webhook()
     # print("WebHook_Set")
     # bot.set_webhook(url=set_webhook_url_test)
-    set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/{tgm_bot_token}/"
+    # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/{tgm_bot_token}/"
+    set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
     bot.set_webhook(url=set_webhook_url_heroku)
 
     return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
