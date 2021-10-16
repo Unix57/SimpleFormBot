@@ -183,6 +183,7 @@ def menu_msg(message):
 @bot.message_handler(func=lambda message: True, content_types=["text"])
 def handler_text(message):
     user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
+    logging.warning(f"--- USER_REG_FLAG --- {user_reg_flag=}")
 
     if user_reg_flag:
         user_state_check = local_db.UserDataCRUD.get_user_state(db_conn_name, message.chat.id)
@@ -326,47 +327,41 @@ set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/bot/"
 
 
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
+    logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
+
     @app.route(f"/bot/", methods=["POST"])
     def get_message():
-        # json_string = request.get_data().decode("utf-8")
-        # # logging.debug(f"--- JSON-STRING --- {json_string}")
-        #
-        # update = telebot.types.Update.de_json(json_string)
-        # # logging.debug(f"--- UPDATE --- {update}")
-        #
-        # bot.process_new_updates([update])
-
         bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
 
-        return "FLASK-APP_TGM-BOT_ROUTE", 200
-
+        return "FLASK-APP TGM-BOT ROUTE", 200
 
     @app.route("/", methods=["GET"])
     def webhook():
+        # set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/bot/"
+        # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
+
         bot.remove_webhook()
         logging.debug("--- WEBHOOK --- REMOVE-WEBHOOK")
-
-        # set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
-        # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
 
         bot.set_webhook(url=set_webhook_url_heroku)
         logging.debug("--- WEBHOOK --- SET-WEBHOOK")
 
-        return "FLASK-APP_SET-WEBHOOK_ROUTE", 200
+        return "FLASK-APP SET-WEBHOOK ROUTE", 200
 
-    # bot.remove_webhook()
-    logging.debug("HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK")
-
-    # set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
-    # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
-
-    # bot.set_webhook(url=set_webhook_url_heroku)
-    logging.debug("HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK")
+    # # bot.remove_webhook()
+    # logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
+    #
+    # # bot.set_webhook(url=set_webhook_url_heroku)
+    # logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
 
 else:
-    pass
-    # bot.remove_webhook()
-    # bot.polling(non_stop=True)
+    logging.warning("--- HEROKU_DEPLOY --- NOT FOUND ---")
+
+    bot.remove_webhook()
+    logging.debug("--- WEBHOOK --- REMOVE-WEBHOOK ---")
+
+    bot.polling(non_stop=True)
+    logging.debug("--- POLLING --- START-POLLING ---")
 
 # --- HEROKU ---
 # Procfile PROD - web: gunicorn --bind 0.0.0.0:$PORT bot_app:app
