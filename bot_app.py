@@ -21,8 +21,8 @@ HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 
 # BOTS and APPLICATIONS
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
-bot.enable_save_next_step_handlers(delay=1)
-bot.load_next_step_handlers()
+# bot.enable_save_next_step_handlers(delay=1, filename="./.handlers-saves/step.save")
+# bot.load_next_step_handlers(filename="./.handlers-saves/step.save")
 
 flask_app = Flask(__name__)
 ssl_flask_app = SSLify(flask_app)
@@ -61,7 +61,7 @@ user_states_dict = {
 }
 
 
-@bot.message_handler(commands=["start"])
+@bot.message_handler(func=lambda message: True, commands=["start"])
 def start_msg(message):
     bot.register_next_step_handler(message, UserPolling.get_user_name)
 
