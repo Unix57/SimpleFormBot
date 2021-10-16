@@ -80,10 +80,9 @@ def start_msg(message):
                          reply_markup=kb_reset)
 
     bot.register_next_step_handler(message, UserPolling.get_user_name)
-    bot.next_step
 
 
-class UserPolling(object):
+class UserPolling:
     @staticmethod
     def get_user_name(message):
         name_message = message.text
