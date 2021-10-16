@@ -35,6 +35,9 @@ user_data_cols = local_db.user_data_cols_dict
 db_conn_name = "bot_local_sqlite3.db"
 
 if __name__ == "__main__":
+    wh_info = bot.get_webhook_info()
+    print(wh_info)
+
     if os.path.exists(db_conn_name):
         logging.debug(f"--- DATABASE | {db_conn_name} | EXISTS --- NO ESTABLISHMENT NEEDED ---")
     else:
@@ -354,19 +357,22 @@ if "HEROKU_DEPLOY" in list(os.environ.keys()):
 
         return "FLASK-APP TGM-BOT ROUTE", 200
 
+    port = int(os.environ.get("PORT", 8443))
+    app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
+
 else:
     logging.warning("--- HEROKU_DEPLOY --- NOT FOUND ---")
 
     bot.remove_webhook()
-    logging.debug("--- WEBHOOK --- REMOVE-WEBHOOK ---")
+    logging.warning("--- WEBHOOK --- REMOVE-WEBHOOK ---")
 
     bot.polling(non_stop=True)
-    logging.debug("--- POLLING --- START-POLLING ---")
+    logging.warning("--- POLLING --- START-POLLING ---")
 
 # --- HEROKU ---
 # Procfile PROD - web: gunicorn --bind 0.0.0.0:$PORT bot_app:app
 # Procfile TEST - web: python bot_app.py runserver 0.0.0.0:$PORT
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8443))
-    app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
+# if __name__ == "__main__":
+#     port = int(os.environ.get("PORT", 8443))
+#     app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
