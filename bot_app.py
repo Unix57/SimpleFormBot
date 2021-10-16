@@ -15,11 +15,11 @@ import bot_config as config
 # from bot_subops import UserPolling, MainMenu, SettingsMenu
 
 # |---| ENVIRONMENTAL VARIABLES
-TGM_BOT_TOKEN_DEFAULT = config.TGM_BOT_TOKEN_DEFAULT_1  # @simpleform4_bot
+TGM_BOT_TOKEN_DEFAULT = config.TGM_BOT_TOKEN_DEFAULT_config  # @simpleform4_bot
 
-TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_DEFAULT_1
+TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_env
 
-HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
+HEROKU_APP_NAME = config.HEROKU_APP_NAME_env
 
 # |---| TELEGRAM-BOT
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
