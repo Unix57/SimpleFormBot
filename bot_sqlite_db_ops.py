@@ -112,7 +112,7 @@ class SQLiteOps:
                 logging.info(">>>>")
 
 
-def db_establish(conn_name_1):
+def init_database(conn_name_1):
     create_users_data_sql = (
         "CREATE TABLE IF NOT EXISTS user_data("
         "chat_id INTEGER PRIMARY KEY, "

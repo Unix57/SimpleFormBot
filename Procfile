@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:${PORT} bot_app:app
+web: python bot_app.py

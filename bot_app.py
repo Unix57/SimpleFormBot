@@ -19,16 +19,19 @@ import bot_config as config
 
 # ENVIRONMENTAL VARIABLES
 TGM_BOT_TOKEN_DEFAULT = config.TGM_BOT_TOKEN_DEFAULT_1  # @simpleform4_bot
+
 TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_1
+
 HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 
-bot = telebot.TeleBot(TGM_BOT_TOKEN_DEFAULT)
+# BOTS and APPLICATIONS
+bot = telebot.TeleBot(TGM_BOT_TOKEN)
 
 app = Flask(__name__)
 sslify = SSLify(app)
 
 # DEBUG LOGGER CONFIG
-logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.DEBUG)
 
 # DATABASE TABLES/COLUMNS DICTS
 db_tables = local_db.db_tables_dict
@@ -38,10 +41,10 @@ db_conn_name = "bot_local_sqlite3.db"
 
 if __name__ == "__main__":
     if os.path.exists(db_conn_name):
-        logging.warning(f"--- DATABASE | {db_conn_name} | EXISTS --- NO ESTABLISHMENT NEEDED ---")
+        logging.debug(f"--- DATABASE | {db_conn_name} | EXISTS --- NO ESTABLISHMENT NEEDED ---")
     else:
-        local_db.db_establish(db_conn_name)
-        logging.warning(f"--- DB FILE CREATED --- DATABASE | {db_conn_name} | ESTABLISHED ---")
+        local_db.init_database(db_conn_name)
+        logging.debug(f"--- DB FILE CREATED --- DATABASE | {db_conn_name} | ESTABLISHED ---")
 
 
 # KEYBOARDS
@@ -314,10 +317,10 @@ class SettingsMenu:
 @app.route(f"/{TGM_BOT_TOKEN}/", methods=["POST"])
 def get_message():
     json_string = request.get_data().decode("utf-8")
-    # logging.warning(f"--- JSON-STRING --- {json_string}")
+    # logging.debug(f"--- JSON-STRING --- {json_string}")
 
     update = telebot.types.Update.de_json(json_string)
-    # logging.warning(f"--- UPDATE --- {update}")
+    # logging.debug(f"--- UPDATE --- {update}")
 
     bot.process_new_updates([update])
 
@@ -358,3 +361,8 @@ if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 8443))
     app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
+    # Procfile - web: gunicorn --bind 0.0.0.0:${PORT} bot_app:app
+    # Procfile - web: python bot_app.py
+
+    # bot.remove_webhook()
+    # bot.polling(non_stop=True)
