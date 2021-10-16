@@ -69,11 +69,15 @@ def start_msg(message):
 
     if not user_reg_flag:
         local_db.UserDataCRUD.add_new_user(db_conn_name, message.chat.id)
-
-    bot.send_message(message.chat.id,
-                     "Вітаю у @simpleform4_bot.\n"
-                     "Для продовження анкетування будь ласка введіть Ваше ім'я:",
-                     reply_markup=kb_reset)
+        bot.send_message(message.chat.id,
+                         "Вітаю у @simpleform4_bot.\n"
+                         "Для початку анкетування будь ласка введіть Ваше ім'я:",
+                         reply_markup=kb_reset)
+    else:
+        bot.send_message(message.chat.id,
+                         "Повторне анкетування.\n"
+                         "Будь ласка введіть Ваше ім'я:",
+                         reply_markup=kb_reset)
 
     bot.register_next_step_handler(message, UserPolling.get_user_name)
 
