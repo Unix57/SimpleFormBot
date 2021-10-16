@@ -19,11 +19,13 @@ TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_DEFAULT_1
 
 HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 
-# BOTS and APPLICATIONS
+# TELEGRAM-BOT
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
-# bot.enable_save_next_step_handlers(delay=1, filename="./.handlers-saves/step.save")
-# bot.load_next_step_handlers(filename="./.handlers-saves/step.save")
 
+bot.enable_save_next_step_handlers(delay=1, filename="./.handlers-saves/step.save")
+bot.load_next_step_handlers(filename="./.handlers-saves/step.save")
+
+# FLASK-APP
 flask_app = Flask(__name__)
 ssl_flask_app = SSLify(flask_app)
 
