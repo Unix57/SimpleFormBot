@@ -185,7 +185,8 @@ def menu_msg(message):
                          "Пройти анкетування можна за командою /start.")
 
 
-@bot.message_handler(func=lambda message: True, content_types=["text"])
+# func=lambda message: True,
+@bot.message_handler(content_types=["text"])
 def handler_text(message):
     user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
     logging.warning(f"--- USER_REG_FLAG --- {user_reg_flag=}")
