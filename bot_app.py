@@ -1,7 +1,7 @@
 # BUILT-IN MODULES
 import os
 import logging
-# import requests
+import requests
 
 # EXTERNAL MODULES
 import telebot
@@ -369,5 +369,8 @@ else:
 # Procfile TEST - web: python bot_app.py runserver 0.0.0.0:$PORT
 
 if __name__ == "__main__":
+    requests.get(flask_app_url)
+    logging.debug("--- HEROKU_DEPLOY --- REQUEST SET-WEBHOOK ---")
+
     port = int(os.environ.get("PORT", 8443))
     flask_app.run(host="0.0.0.0", port=port, threaded=True, debug=True)

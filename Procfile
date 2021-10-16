@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT bot_app.py
+web: gunicorn --bind 0.0.0.0:$PORT bot_app:flask_app
