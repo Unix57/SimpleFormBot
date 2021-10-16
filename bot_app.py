@@ -63,7 +63,6 @@ user_states_dict = {
 @bot.message_handler(commands=["start"])
 def start_msg(message):
     bot.enable_save_next_step_handlers(delay=2)
-    bot.load_next_step_handlers()
 
     user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
 
@@ -79,6 +78,8 @@ def start_msg(message):
                          "Будь ласка введіть Ваше ім'я:",
                          reply_markup=kb_reset)
 
+    bot.load_next_step_handlers()
+
     bot.register_next_step_handler(message, UserPolling.get_user_name)
     # bot.register_next_step_handler_by_chat_id()
 
@@ -86,6 +87,7 @@ def start_msg(message):
 class UserPolling:
     @staticmethod
     def get_user_name(message):
+        bot.load_next_step_handlers()
         name_message = message.text
 
         if message.text == "Скасувати":
@@ -110,6 +112,8 @@ class UserPolling:
 
     @staticmethod
     def get_user_age(message):
+        bot.load_next_step_handlers()
+
         age_message = message.text
 
         if age_message.isdigit() and 1 < int(age_message) < 103:
@@ -134,6 +138,8 @@ class UserPolling:
 
     @staticmethod
     def get_user_gender(message):
+        bot.load_next_step_handlers()
+
         gender_message = message.text
 
         if gender_message == "Чоловіча" or gender_message == "Жіноча":
