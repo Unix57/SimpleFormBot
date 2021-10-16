@@ -97,7 +97,7 @@ class UserPolling:
         else:
             bot.send_message(message.chat.id,
                              "Некоректний формат вводу.\n"
-                             "Ім'я має містити від 2 до 20 символів.\n"
+                             "Ім'я має містити від 2 до 20 символів.\n\n"
                              "Повторіть спробу.",
                              reply_markup=kb_reset)
             bot.register_next_step_handler(message, UserPolling.get_user_name)
@@ -121,7 +121,7 @@ class UserPolling:
         else:
             bot.send_message(message.chat.id,
                              "Некоректний формат вводу.\n"
-                             "Вік має бути цілим числом від 2 до 102 включно.\n"
+                             "Вік має бути цілим числом від 2 до 102 включно.\n\n"
                              "Повторіть спробу.",
                              reply_markup=kb_reset)
             bot.register_next_step_handler(message, UserPolling.get_user_age)
@@ -143,9 +143,8 @@ class UserPolling:
 
             bot.send_message(message.chat.id,
                              "Ваші дані збережено.\n\n"
-                             "Для перегляду особистих даних \n"
-                             "оберіть пункт «Інфо про мене» у /menu.\n\n"
-                             "Для зміни перейдіть у розділ «Налаштування».",
+                             "Для перегляду особистих даних оберіть пункт «Інфо про мене» у /menu.\n\n"
+                             "Для зміни особистих данихперейдіть у розділ «Налаштування» у /menu.",
                              reply_markup=kb_main_menu)
 
         elif message.text == "Скасувати":
@@ -153,7 +152,7 @@ class UserPolling:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n"
+                             "Некоректний формат вводу.\n\n"
                              "Повторіть спробу.",
                              reply_markup=kb_gender_reset)
             bot.register_next_step_handler(message, UserPolling.get_user_gender)
@@ -172,6 +171,7 @@ def menu_msg(message):
 
     if user_reg_flag:
         bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
+
     else:
         bot.send_message(message.chat.id,
                          "Функція меню доступна лише зареєстрованим користувачам.\n"
@@ -197,6 +197,9 @@ def handler_text(message):
 
                 bot.send_message(message.chat.id, "Налаштування:", reply_markup=kb_settings)
 
+            else:
+                bot.send_message(message.chat.id, "Команда відсутня")
+
         elif user_state_check[0] == user_states_dict["state_settings_menu"]:
             if message.text == "Змінити ім'я":
                 bot.send_message(message.chat.id, "Введіть Ваше нове ім'я:", reply_markup=kb_go_back)
@@ -219,6 +222,9 @@ def handler_text(message):
                 bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
 
                 bot.register_next_step_handler(message, handler_text)
+
+            else:
+                bot.send_message(message.chat.id, "Команда відсутня")
 
     else:
         bot.send_message(message.chat.id,
