@@ -324,8 +324,6 @@ class SettingsMenu:
 
 
 # test_webhook_url = "https://9c55-31-40-108-124.ngrok.io"
-tgm_bot_token = "2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18"
-heroku_app_name = "simple-form-bot-v1"
 
 # set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 # set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
@@ -336,7 +334,6 @@ set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/bot/"
 
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
     logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
-
 
     @app.route("/", methods=["GET"])
     def webhook():
@@ -357,22 +354,13 @@ if "HEROKU_DEPLOY" in list(os.environ.keys()):
 
         return "FLASK-APP TGM-BOT ROUTE", 200
 
-    port = int(os.environ.get("PORT", 8443))
-    app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
-
 else:
-    logging.warning("--- HEROKU_DEPLOY --- NOT FOUND ---")
-
-    bot.remove_webhook()
-    logging.warning("--- WEBHOOK --- REMOVE-WEBHOOK ---")
-
-    bot.polling(non_stop=True)
-    logging.warning("--- POLLING --- START-POLLING ---")
+    logging.critical("--- HEROKU_DEPLOY --- NOT FOUND ---")
 
 # --- HEROKU ---
 # Procfile PROD - web: gunicorn --bind 0.0.0.0:$PORT bot_app:app
 # Procfile TEST - web: python bot_app.py runserver 0.0.0.0:$PORT
 
-# if __name__ == "__main__":
-#     port = int(os.environ.get("PORT", 8443))
-#     app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8443))
+    app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
