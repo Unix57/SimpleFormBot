@@ -329,20 +329,11 @@ class SettingsMenu:
 flask_app_url = f"https://{HEROKU_APP_NAME}.herokuapp.com/"
 
 set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
-set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/bot/"
+set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKEN}/"
 
 
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
     logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
-
-    # if not set_webhook_flag:
-    #     bot.remove_webhook()
-    #     logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
-    #
-    #     bot.set_webhook(url=set_webhook_url_heroku)
-    #     logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
-    #
-    #     set_webhook_flag = True
 
     @flask_app.route("/", methods=["GET"])
     def webhook():
@@ -354,7 +345,7 @@ if "HEROKU_DEPLOY" in list(os.environ.keys()):
 
         return "FLASK-APP SET-WEBHOOK ROUTE", 200
 
-    @flask_app.route(f"/bot/", methods=["POST"])
+    @flask_app.route(f"/{TGM_BOT_TOKEN}/", methods=["POST"])
     def get_message():
         json_str = request.stream.read().decode("utf-8")
         bot.process_new_updates([telebot.types.Update.de_json(json_str)])
@@ -365,7 +356,7 @@ else:
     logging.critical("--- HEROKU_DEPLOY --- NOT FOUND ---")
 
 # --- HEROKU-DEPLOY PROCFILE ---
-# Procfile PROD - web: gunicorn --bind 0.0.0.0:$PORT bot_app:app
+# Procfile PROD - web: gunicorn --bind 0.0.0.0:$PORT bot_app:flask_app
 # Procfile TEST - web: python bot_app.py runserver 0.0.0.0:$PORT
 
 if __name__ == "__main__":
