@@ -22,9 +22,6 @@ HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 # TELEGRAM-BOT
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
 
-bot.enable_save_next_step_handlers(delay=0, filename="./.handlers-saves/step.save")
-bot.load_next_step_handlers(filename="./.handlers-saves/step.save")
-
 # FLASK-APP
 flask_app = Flask(__name__)
 ssl_flask_app = SSLify(flask_app)
@@ -65,6 +62,9 @@ user_states_dict = {
 
 @bot.message_handler(commands=["start"])
 def start_msg(message):
+    bot.enable_save_next_step_handlers(delay=2)
+    bot.load_next_step_handlers()
+
     user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
 
     if not user_reg_flag:
