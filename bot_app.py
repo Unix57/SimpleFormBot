@@ -67,7 +67,7 @@ user_states_dict = {
 def start_msg(message):
     user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
 
-    if not user_reg_flag[0]:
+    if not user_reg_flag:
         local_db.UserDataCRUD.add_new_user(db_conn_name, message.chat.id)
         bot.send_message(message.chat.id,
                          "Вітаю у @simpleform4_bot.\n"
@@ -80,6 +80,7 @@ def start_msg(message):
                          reply_markup=kb_reset)
 
     bot.register_next_step_handler(message, UserPolling.get_user_name)
+    # bot.register_next_step_handler_by_chat_id()
 
 
 class UserPolling:
@@ -337,15 +338,15 @@ set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKE
 
 
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
-    logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
+    logging.info("--- HEROKU_DEPLOY --- TRUE ---")
 
     @flask_app.route("/reset", methods=["GET"])
     def webhook():
         bot.remove_webhook()
-        logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
+        logging.info("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
 
         bot.set_webhook(set_webhook_url_heroku)
-        logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
+        logging.info("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
 
         return "FLASK-APP SET-WEBHOOK ROUTE", 200
 
