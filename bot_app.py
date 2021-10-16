@@ -328,11 +328,6 @@ set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/bot/"
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
     logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
 
-    @app.route(f"/bot/", methods=["POST"])
-    def get_message():
-        bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-
-        return "FLASK-APP TGM-BOT ROUTE", 200
 
     @app.route("/", methods=["GET"])
     def webhook():
@@ -340,18 +335,18 @@ if "HEROKU_DEPLOY" in list(os.environ.keys()):
         # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
 
         bot.remove_webhook()
-        logging.debug("--- WEBHOOK --- REMOVE-WEBHOOK")
+        logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
 
         bot.set_webhook(url=set_webhook_url_heroku)
-        logging.debug("--- WEBHOOK --- SET-WEBHOOK")
+        logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
 
         return "FLASK-APP SET-WEBHOOK ROUTE", 200
 
-    bot.remove_webhook()
-    logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
+    @app.route(f"/bot/", methods=["POST"])
+    def get_message():
+        bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
 
-    bot.set_webhook(url=set_webhook_url_heroku)
-    logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
+        return "FLASK-APP TGM-BOT ROUTE", 200
 
 else:
     logging.warning("--- HEROKU_DEPLOY --- NOT FOUND ---")
