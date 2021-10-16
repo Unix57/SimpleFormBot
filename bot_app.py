@@ -25,7 +25,7 @@ bot = telebot.TeleBot(TGM_BOT_TOKEN)
 flask_app = Flask(__name__)
 ssl_flask_app = SSLify(flask_app)
 
-# DEBUG LOGGER CONFIG
+# LOGGER CONFIG
 logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.DEBUG)
 
 # DATABASE TABLES/COLUMNS DICTS
