@@ -22,7 +22,7 @@ HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 # TELEGRAM-BOT
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
 
-bot.enable_save_next_step_handlers(delay=1, filename="./.handlers-saves/step.save")
+bot.enable_save_next_step_handlers(delay=0, filename="./.handlers-saves/step.save")
 bot.load_next_step_handlers(filename="./.handlers-saves/step.save")
 
 # FLASK-APP
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         logging.debug(f"--- DB FILE CREATED --- DATABASE | {db_conn_name} | ESTABLISHED ---")
 
 
-# KEYBOARDS
+# REPLY KEYBOARDS
 kb_reset = keyboards.kb_reset_val
 kb_go_back = keyboards.kb_go_back_val
 
@@ -65,8 +65,6 @@ user_states_dict = {
 
 @bot.message_handler(commands=["start"])
 def start_msg(message):
-    bot.register_next_step_handler(message, UserPolling.get_user_name)
-
     user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
 
     if not user_reg_flag[0]:
@@ -80,6 +78,9 @@ def start_msg(message):
                          "Повторне анкетування.\n"
                          "Будь ласка введіть Ваше ім'я:",
                          reply_markup=kb_reset)
+
+    bot.register_next_step_handler(message, UserPolling.get_user_name)
+    bot.next_step
 
 
 class UserPolling(object):
