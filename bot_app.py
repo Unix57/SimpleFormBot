@@ -1,6 +1,7 @@
 # BUILT-IN MODULES
 import os
 import logging
+import requests
 
 # EXTERNAL MODULES
 import telebot
@@ -22,8 +23,8 @@ HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 # BOTS and APPLICATIONS
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
 
-app = Flask(__name__)
-sslify = SSLify(app)
+flask_app = Flask(__name__)
+sslify = SSLify(flask_app)
 
 # DEBUG LOGGER CONFIG
 logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.DEBUG)
@@ -35,9 +36,6 @@ user_data_cols = local_db.user_data_cols_dict
 db_conn_name = "bot_local_sqlite3.db"
 
 if __name__ == "__main__":
-    wh_info = bot.get_webhook_info()
-    print(wh_info)
-
     if os.path.exists(db_conn_name):
         logging.debug(f"--- DATABASE | {db_conn_name} | EXISTS --- NO ESTABLISHMENT NEEDED ---")
     else:
@@ -192,7 +190,7 @@ def handler_text(message):
 
         if user_state_check[0] == user_states_dict["state_default"]:
             if message.text == "Інфо про мене":
-                MainMenu.send_user_info(message)
+                MainMenu.send_user_info_msg(message)
 
             elif message.text == "Налаштування":
                 local_db.UserDataCRUD.upd_user_state(db_conn_name, user_states_dict["state_settings_menu"],
@@ -238,7 +236,7 @@ def handler_text(message):
 
 class MainMenu:
     @staticmethod
-    def send_user_info(message):
+    def send_user_info_msg(message):
         user_data_tup = local_db.UserDataCRUD.read_user_data(db_conn_name, message.chat.id)
 
         if user_data_tup:
@@ -328,6 +326,8 @@ class SettingsMenu:
 # set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 # set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 
+flask_app_url = f"https://{HEROKU_APP_NAME}.herokuapp.com/"
+
 set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
 set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/bot/"
 
@@ -335,11 +335,17 @@ set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/bot/"
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
     logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
 
-    @app.route("/", methods=["GET"])
-    def webhook():
-        # set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/bot/"
-        # set_webhook_url_heroku = f"https://{heroku_app_name}.herokuapp.com/bot/"
+    # if not set_webhook_flag:
+    #     bot.remove_webhook()
+    #     logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
+    #
+    #     bot.set_webhook(url=set_webhook_url_heroku)
+    #     logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
+    #
+    #     set_webhook_flag = True
 
+    @flask_app.route("/", methods=["GET"])
+    def webhook():
         bot.remove_webhook()
         logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
 
@@ -348,19 +354,22 @@ if "HEROKU_DEPLOY" in list(os.environ.keys()):
 
         return "FLASK-APP SET-WEBHOOK ROUTE", 200
 
-    @app.route(f"/bot/", methods=["POST"])
+    @flask_app.route(f"/bot/", methods=["POST"])
     def get_message():
-        bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+        json_str = request.stream.read().decode("utf-8")
+        bot.process_new_updates([telebot.types.Update.de_json(json_str)])
 
         return "FLASK-APP TGM-BOT ROUTE", 200
 
 else:
     logging.critical("--- HEROKU_DEPLOY --- NOT FOUND ---")
 
-# --- HEROKU ---
+# --- HEROKU-DEPLOY PROCFILE ---
 # Procfile PROD - web: gunicorn --bind 0.0.0.0:$PORT bot_app:app
 # Procfile TEST - web: python bot_app.py runserver 0.0.0.0:$PORT
 
 if __name__ == "__main__":
+    requests.get(flask_app_url)
+
     port = int(os.environ.get("PORT", 8443))
-    app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
+    flask_app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
