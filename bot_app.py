@@ -21,6 +21,8 @@ HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 
 # BOTS and APPLICATIONS
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
+bot.enable_save_next_step_handlers(delay=1)
+bot.load_next_step_handlers()
 
 flask_app = Flask(__name__)
 ssl_flask_app = SSLify(flask_app)
@@ -78,7 +80,7 @@ def start_msg(message):
                          reply_markup=kb_reset)
 
 
-class UserPolling:
+class UserPolling(object):
     @staticmethod
     def get_user_name(message):
         name_message = message.text
