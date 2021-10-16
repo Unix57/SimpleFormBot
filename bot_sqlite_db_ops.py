@@ -1,4 +1,4 @@
-# BUILT-IN MODULES
+# // BUILT-IN MODULES
 import logging
 import sqlite3
 from sqlite3 import Error
@@ -11,7 +11,7 @@ class SQLiteOps:
         try:
             connection = sqlite3.connect(conn_name_1)
             logging.info(f">>>>")
-            logging.info(f"--- CONNECTION TO | {conn_name_1} | DATABASE ESTABLISHED ---")
+            logging.info(f"--- CONNECTION TO DATABASE | {conn_name_1} | ESTABLISHED ---")
 
         except Error as e:
             connection = None
@@ -34,7 +34,7 @@ class SQLiteOps:
         finally:
             if connection:
                 connection.close()
-                logging.info(f"--- CONNECTION TO | {conn_name_1} | DATABASE CLOSED ---")
+                logging.info(f"--- CONNECTION TO DATABASE | {conn_name_1} | CLOSED ---")
                 logging.info(">>>>")
 
     @staticmethod
@@ -52,7 +52,7 @@ class SQLiteOps:
         finally:
             if connection:
                 connection.close()
-                logging.info(f"--- CONNECTION TO | {conn_name_1} | DATABASE CLOSED ---")
+                logging.info(f"--- CONNECTION TO DATABASE | {conn_name_1} | CLOSED ---")
                 logging.info(">>>>")
 
     @staticmethod
@@ -70,7 +70,7 @@ class SQLiteOps:
         finally:
             if connection:
                 connection.close()
-                logging.info(f"--- CONNECTION TO | {conn_name_1} | DATABASE CLOSED ---")
+                logging.info(f"--- CONNECTION TO DATABASE | {conn_name_1} | CLOSED ---")
                 logging.info(">>>>")
 
     @staticmethod
@@ -108,7 +108,7 @@ class SQLiteOps:
         finally:
             if connection:
                 connection.close()
-                logging.info(f"--- CONNECTION TO | {conn_name_1} | DATABASE CLOSED ---")
+                logging.info(f"--- CONNECTION TO DATABASE | {conn_name_1} | CLOSED ---")
                 logging.info(">>>>")
 
 
@@ -125,9 +125,9 @@ def init_database(conn_name_1):
     SQLiteOps.execute_query_no_data(conn_name_1, create_users_data_sql)
 
 
-# DATABASE TABLES/COLUMNS DICTS
+# |---| DATABASE TABLES/COLUMNS DICTS
 db_tables_dict = {
-    "user_data": "users_data"
+    "user_data": "user_data"
 }
 
 user_data_cols_dict = {
@@ -193,7 +193,7 @@ class UserDataCRUD:
             f"WHERE chat_id = {chat_id_1};")
         SQLiteOps.execute_query_no_data(conn_name_1, delete_user_sql)
 
-    # --- OTHER --- FLAGS and STATES
+    # --- OTHER --- FLAGS and STATES ---
     @staticmethod
     def check_user_reg_flag(conn_name_1: str, chat_id_1: int):
         read_sql = (
@@ -203,6 +203,16 @@ class UserDataCRUD:
         reg_flag_tup = SQLiteOps.execute_read_query_one(conn_name_1, read_sql)
 
         return reg_flag_tup
+
+    @staticmethod
+    def check_user_cid(conn_name_1: str, chat_id_1: int):
+        read_sql = (
+            f"SELECT chat_id "
+            f"FROM user_data "
+            f"WHERE chat_id = {chat_id_1};")
+        user_cid_tup = SQLiteOps.execute_read_query_one(conn_name_1, read_sql)
+
+        return user_cid_tup
 
     @staticmethod
     def get_user_state(conn_name_1: str, chat_id_1: int):

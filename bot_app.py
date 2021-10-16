@@ -1,106 +1,114 @@
-# BUILT-IN MODULES
+# // BUILT-IN MODULES
 import os
 import logging
 
-# EXTERNAL MODULES
+# // EXTERNAL MODULES
 import telebot
 from flask import Flask, request
 from flask_sslify import SSLify
 
-# LOCAL MODULES
+# // LOCAL MODULES
 import bot_sqlite_db_ops as local_db
+from bot_sqlite_db_ops import UserDataCRUD
 import bot_keyboards as keyboards
 import bot_config as config
+# from bot_subops import UserPolling, MainMenu, SettingsMenu
 
-# ENVIRONMENTAL VARIABLES
+# |---| ENVIRONMENTAL VARIABLES
 TGM_BOT_TOKEN_DEFAULT = config.TGM_BOT_TOKEN_DEFAULT_1  # @simpleform4_bot
 
 TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_DEFAULT_1
 
 HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 
-# TELEGRAM-BOT
+# |---| TELEGRAM-BOT
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
 
-# FLASK-APP
+# bot_webhook_info_url = f"https://api.telegram.org/bot{TGM_BOT_TOKEN}/getWebhookInfo"
+
+# |---| FLASK-APP
 flask_app = Flask(__name__)
 ssl_flask_app = SSLify(flask_app)
+# flask_app_url = f"https://{HEROKU_APP_NAME}.herokuapp.com/"
 
-# LOGGER CONFIG
+# |---| DEBUG LOGGER CONFIG
 logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.DEBUG)
 
-# DATABASE TABLES/COLUMNS DICTS
+# |---| DATABASE TABLES/COLUMNS DICTS
 db_tables = local_db.db_tables_dict
 user_data_cols = local_db.user_data_cols_dict
 
-# DATABASE CONFIG
+# |---| DATABASE CONFIG
 db_conn_name = "bot_local_sqlite3.db"
 
 if __name__ == "__main__":
     if os.path.exists(db_conn_name):
-        logging.debug(f"--- DATABASE | {db_conn_name} | EXISTS --- NO ESTABLISHMENT NEEDED ---")
+        logging.info(f"--- DATABASE | {db_conn_name} | --- EXISTS ---")
+
     else:
+        logging.warning(f"--- DATABASE | {db_conn_name} | --- NOT FOUND---")
         local_db.init_database(db_conn_name)
-        logging.debug(f"--- DB FILE CREATED --- DATABASE | {db_conn_name} | ESTABLISHED ---")
+        logging.warning(f"--- DATABASE | {db_conn_name} | --- INITIALIZED ---")
 
 
-# REPLY KEYBOARDS
-kb_reset = keyboards.kb_reset_val
-kb_go_back = keyboards.kb_go_back_val
+# |---| REPLY KEYBOARDS
+hide_kb = telebot.types.ReplyKeyboardRemove()
 
-kb_main_menu = keyboards.kb_main_menu_func()
-kb_settings = keyboards.kb_settings_func()
-kb_gender_reset = keyboards.kb_gender_reset_func()
-kb_gender_go_back = keyboards.kb_gender_go_back_func()
+kb_reset = keyboards.get_kb_reset_var
+kb_go_back = keyboards.get_kb_go_back_var
 
-# VARS
-user_states_dict = {
-    "state_default": "state_default",
-    "state_settings_menu": "state_settings_menu"
+kb_main_menu = keyboards.get_kb_main_menu()
+kb_settings = keyboards.get_kb_settings()
+kb_gender_reset = keyboards.get_kb_gender_reset()
+kb_gender_go_back = keyboards.get_kb_gender_go_back()
+
+# |---| USER STATE DICTS
+user_states = {
+    "default_state": "default_state",
+    "settings_menu": "settings_menu"
 }
 
 
 @bot.message_handler(commands=["start"])
 def start_msg(message):
-    bot.enable_save_next_step_handlers(delay=2)
+    user_reg_flag = UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
+    user_check = UserDataCRUD.check_user_cid(db_conn_name, message.chat.id)
 
-    user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
+    print(user_check)
+    print(user_reg_flag)
 
-    if not user_reg_flag:
-        local_db.UserDataCRUD.add_new_user(db_conn_name, message.chat.id)
-        bot.send_message(message.chat.id,
-                         "Вітаю у @simpleform4_bot.\n"
-                         "Для початку анкетування будь ласка введіть Ваше ім'я:",
-                         reply_markup=kb_reset)
-    else:
+    if not user_check:
+        UserDataCRUD.add_new_user(db_conn_name, message.chat.id)
+
+    if user_reg_flag:
         bot.send_message(message.chat.id,
                          "Повторне анкетування.\n"
                          "Будь ласка введіть Ваше ім'я:",
                          reply_markup=kb_reset)
-
-    bot.load_next_step_handlers()
-
+    else:
+        bot.send_message(message.chat.id,
+                         "Вітаю у @simpleform4_bot.\n"
+                         "Для початку анкетування будь ласка введіть Ваше ім'я:",
+                         reply_markup=kb_reset)
     bot.register_next_step_handler(message, UserPolling.get_user_name)
-    # bot.register_next_step_handler_by_chat_id()
 
 
 class UserPolling:
     @staticmethod
     def get_user_name(message):
-        bot.load_next_step_handlers()
-        name_message = message.text
+        name_msg = message.text
 
         if message.text == "Скасувати":
             UserPolling.cancel_user_polling(message)
 
-        elif 1 < len(name_message) < 21 and not name_message.startswith("/"):
-            user_name = message.text
-            local_db.UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["name"], user_name, message.chat.id)
+        elif 1 < len(name_msg) < 21 and not name_msg.startswith("/"):
+            UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["name"], name_msg, message.chat.id)
 
-            bot.send_message(message.chat.id, f"Ваше ім'я: {user_name}")
-            bot.send_message(message.chat.id, "Введіть Ваш вік (повних років):", reply_markup=kb_reset)
+            bot.send_message(message.chat.id, f"Ваше ім'я: {name_msg}")
 
             bot.register_next_step_handler(message, UserPolling.get_user_age)
+
+            bot.send_message(message.chat.id, "Введіть Ваш вік (повних років):", reply_markup=kb_reset)
 
         else:
             bot.send_message(message.chat.id,
@@ -108,22 +116,21 @@ class UserPolling:
                              "Ім'я має містити від 2 до 20 символів.\n\n"
                              "Повторіть спробу.",
                              reply_markup=kb_reset)
+
             bot.register_next_step_handler(message, UserPolling.get_user_name)
 
     @staticmethod
     def get_user_age(message):
-        bot.load_next_step_handlers()
+        age_msg = message.text
 
-        age_message = message.text
+        if age_msg.isdigit() and 1 < int(age_msg) < 103:
+            UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["age"], age_msg, message.chat.id)
 
-        if age_message.isdigit() and 1 < int(age_message) < 103:
-            user_age = age_message
-            local_db.UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["age"], user_age, message.chat.id)
-
-            bot.send_message(message.chat.id, f"Ваш вік: {user_age}")
-            bot.send_message(message.chat.id, "Оберіть Вашу стать:", reply_markup=kb_gender_reset)
+            bot.send_message(message.chat.id, f"Ваш вік: {age_msg}")
 
             bot.register_next_step_handler(message, UserPolling.get_user_gender)
+
+            bot.send_message(message.chat.id, "Оберіть Вашу стать:", reply_markup=kb_gender_reset)
 
         elif message.text == "Скасувати":
             UserPolling.cancel_user_polling(message)
@@ -131,32 +138,30 @@ class UserPolling:
         else:
             bot.send_message(message.chat.id,
                              "Некоректний формат вводу.\n"
-                             "Вік має бути цілим числом від 2 до 102 включно.\n\n"
+                             "Вік має бути цілим числом від 2 до 102 включно.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_reset)
+
             bot.register_next_step_handler(message, UserPolling.get_user_age)
 
     @staticmethod
     def get_user_gender(message):
-        bot.load_next_step_handlers()
+        gender_msg = message.text
 
-        gender_message = message.text
+        if gender_msg == "Чоловіча" or gender_msg == "Жіноча":
+            UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["gender"], gender_msg, message.chat.id)
 
-        if gender_message == "Чоловіча" or gender_message == "Жіноча":
-            user_gender = gender_message
-            local_db.UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["gender"], user_gender, message.chat.id)
+            bot.send_message(message.chat.id, f"Ваша стать: {gender_msg}")
 
-            bot.send_message(message.chat.id, f"Ваша стать: {user_gender}")
-
-            user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
+            user_reg_flag = UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
 
             if not user_reg_flag:
-                local_db.UserDataCRUD.upd_user_reg_flag(db_conn_name, 1, message.chat.id)
+                UserDataCRUD.upd_user_reg_flag(db_conn_name, 1, message.chat.id)
 
             bot.send_message(message.chat.id,
-                             "Ваші дані збережено.\n\n"
-                             "Для перегляду особистих даних оберіть пункт «Інфо про мене» у /menu.\n\n"
-                             "Для зміни особистих данихперейдіть у розділ «Налаштування» у /menu.",
+                             "Ваші особисті дані збережено.\n\n"
+                             "- Для перегляду особистих даних оберіть пункт «Інфо про мене» /menu.\n"
+                             "- Зміна особистих даних доступна у розділі «Налаштування» /menu.",
                              reply_markup=kb_main_menu)
 
         elif message.text == "Скасувати":
@@ -164,7 +169,7 @@ class UserPolling:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n\n"
+                             "Некоректний формат вводу.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_gender_reset)
             bot.register_next_step_handler(message, UserPolling.get_user_gender)
@@ -178,8 +183,8 @@ class UserPolling:
 
 @bot.message_handler(commands=["menu"])
 def menu_msg(message):
-    local_db.UserDataCRUD.upd_user_state(db_conn_name, user_states_dict["state_default"], message.chat.id)
-    user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
+    UserDataCRUD.upd_user_state(db_conn_name, user_states["default_state"], message.chat.id)
+    user_reg_flag = UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
 
     if user_reg_flag:
         bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
@@ -188,68 +193,76 @@ def menu_msg(message):
         bot.send_message(message.chat.id,
                          "Функція меню доступна лише зареєстрованим користувачам.\n"
                          "Для реєстрації пройдіть коротке анкетування.\n\n"
-                         "Пройти анкетування можна за командою /start.")
+                         "Натисніть /start для початку анкетування")
 
 
-# func=lambda message: True,
 @bot.message_handler(func=lambda message: True, content_types=["text"])
 def handler_text(message):
-    user_reg_flag = local_db.UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
-    logging.warning(f"--- USER_REG_FLAG --- {user_reg_flag=}")
+    user_check = UserDataCRUD.check_user_cid(db_conn_name, message.chat.id)
 
-    if user_reg_flag:
-        user_state_check = local_db.UserDataCRUD.get_user_state(db_conn_name, message.chat.id)
+    if user_check:
+        user_reg_flag = UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
+        logging.warning(f"--- USER_REG_FLAG --- {user_reg_flag=}")
 
-        if user_state_check[0] == user_states_dict["state_default"]:
-            if message.text == "Інфо про мене":
-                MainMenu.send_user_info_msg(message)
+        user_state = UserDataCRUD.get_user_state(db_conn_name, message.chat.id)
 
-            elif message.text == "Налаштування":
-                local_db.UserDataCRUD.upd_user_state(db_conn_name, user_states_dict["state_settings_menu"],
-                                                     message.chat.id)
+        if user_reg_flag:
+            if user_state[0] == user_states["default_state"]:
+                if message.text == "Інфо про мене":
+                    MainMenu.send_user_info_msg(message)
 
-                bot.send_message(message.chat.id, "Налаштування:", reply_markup=kb_settings)
+                elif message.text == "Налаштування":
+                    UserDataCRUD.upd_user_state(db_conn_name, user_states["settings_menu"], message.chat.id)
 
-            else:
-                bot.send_message(message.chat.id, "Команда відсутня")
+                    bot.send_message(message.chat.id, "Налаштування:", reply_markup=kb_settings)
 
-        elif user_state_check[0] == user_states_dict["state_settings_menu"]:
-            if message.text == "Змінити ім'я":
-                bot.send_message(message.chat.id, "Введіть Ваше нове ім'я:", reply_markup=kb_go_back)
+                else:
+                    bot.send_message(message.chat.id, "Команда відсутня")
 
-                bot.register_next_step_handler(message, SettingsMenu.change_user_name)
+            elif user_state[0] == user_states["settings_menu"]:
+                if message.text == "Змінити ім'я":
+                    bot.send_message(message.chat.id, "Введіть Ваше нове ім'я:", reply_markup=kb_go_back)
 
-            elif message.text == "Змінити вік":
-                bot.send_message(message.chat.id, "Введіть Ваш новий вік:", reply_markup=kb_go_back)
+                    bot.register_next_step_handler(message, SettingsMenu.edit_user_name)
 
-                bot.register_next_step_handler(message, SettingsMenu.change_user_age)
+                elif message.text == "Змінити вік":
+                    bot.send_message(message.chat.id, "Введіть Ваш новий вік:", reply_markup=kb_go_back)
 
-            elif message.text == "Змінити стать":
-                bot.send_message(message.chat.id, "Оберіть Вашу нову стать:", reply_markup=kb_gender_go_back)
+                    bot.register_next_step_handler(message, SettingsMenu.edit_user_age)
 
-                bot.register_next_step_handler(message, SettingsMenu.change_user_gender)
+                elif message.text == "Змінити стать":
+                    bot.send_message(message.chat.id, "Оберіть Вашу нову стать:", reply_markup=kb_gender_go_back)
 
-            elif message.text == "Назад":
-                local_db.UserDataCRUD.upd_user_state(db_conn_name, user_states_dict["state_default"], message.chat.id)
+                    bot.register_next_step_handler(message, SettingsMenu.edit_user_gender)
 
-                bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
+                elif message.text == "Назад":
+                    UserDataCRUD.upd_user_state(db_conn_name, user_states["default_state"], message.chat.id)
 
-                bot.register_next_step_handler(message, handler_text)
+                    bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
 
-            else:
-                bot.send_message(message.chat.id, "Команда відсутня")
+                    bot.register_next_step_handler(message, handler_text)
 
+                else:
+                    bot.send_message(message.chat.id, "Команда відсутня")
+
+        else:
+            if user_state[0] == user_states["default_state"] and not user_reg_flag:
+                bot.send_message(message.chat.id,
+                                 "Ви не зареєстровані у системі.\n"
+                                 "Для реєстрації пройдіть коротке анкетування.\n\n"
+                                 "Натисніть /start для початку анкетування",
+                                 reply_markup=hide_kb)
     else:
         bot.send_message(message.chat.id,
-                         "Ви не зареєстровані у системі.\n"
-                         "Для реєстрації пройдіть коротке анкетування.\n\n"
-                         "Пройти анкетування можна за командою /start.")
+                         "Ваш унікальний ідентифікатор відсутній у системі.\n"
+                         "Натисніть /start для початку анкетування",
+                         reply_markup=hide_kb)
 
 
 class MainMenu:
     @staticmethod
     def send_user_info_msg(message):
-        user_data_tup = local_db.UserDataCRUD.read_user_data(db_conn_name, message.chat.id)
+        user_data_tup = UserDataCRUD.read_user_data(db_conn_name, message.chat.id)
 
         if user_data_tup:
             user_name, user_age, user_gender = user_data_tup
@@ -265,18 +278,18 @@ class MainMenu:
 
 class SettingsMenu:
     @staticmethod
-    def change_user_name(message):
-        name_message = message.text
+    def edit_user_name(message):
+        name_msg = message.text
 
         if message.text == "Назад":
             bot.send_message(message.chat.id, "Зміна імені скасована", reply_markup=kb_settings)
 
             bot.register_next_step_handler(message, handler_text)
 
-        elif 1 < len(name_message) < 21 and not name_message.startswith("/"):
-            user_name = name_message
-            local_db.UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["name"], user_name, message.chat.id)
-            bot.send_message(message.chat.id, f"Ваше нове ім'я: {user_name}", reply_markup=kb_settings)
+        elif (1 < len(name_msg) < 21) and not name_msg.startswith("/"):
+            UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["name"], name_msg, message.chat.id)
+
+            bot.send_message(message.chat.id, f"Ваше нове ім'я: {name_msg}", reply_markup=kb_settings)
 
         else:
             bot.send_message(message.chat.id,
@@ -285,16 +298,16 @@ class SettingsMenu:
                              "Повторіть спробу.",
                              reply_markup=kb_go_back)
 
-            bot.register_next_step_handler(message, SettingsMenu.change_user_name)
+            bot.register_next_step_handler(message, SettingsMenu.edit_user_name)
 
     @staticmethod
-    def change_user_age(message):
-        age_message = message.text
+    def edit_user_age(message):
+        age_msg = message.text
 
-        if age_message.isdigit() and 1 < int(age_message) < 103:
-            user_age = age_message
-            local_db.UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["age"], user_age, message.chat.id)
-            bot.send_message(message.chat.id, f"Ваш оновлений вік: {user_age}", reply_markup=kb_settings)
+        if age_msg.isdigit() and (1 < int(age_msg) < 103):
+            UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["age"], age_msg, message.chat.id)
+
+            bot.send_message(message.chat.id, f"Ваш оновлений вік: {age_msg}", reply_markup=kb_settings)
 
         elif message.text == "Назад":
             bot.send_message(message.chat.id, "Зміна віку скасована", reply_markup=kb_settings)
@@ -308,16 +321,16 @@ class SettingsMenu:
                              "Повторіть спробу.",
                              reply_markup=kb_go_back)
 
-            bot.register_next_step_handler(message, SettingsMenu.change_user_age)
+            bot.register_next_step_handler(message, SettingsMenu.edit_user_age)
 
     @staticmethod
-    def change_user_gender(message):
-        gender_message = message.text
+    def edit_user_gender(message):
+        gender_msg = message.text
 
-        if gender_message == "Чоловіча" or gender_message == "Жіноча":
-            user_gender = gender_message
-            local_db.UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["gender"], user_gender, message.chat.id)
-            bot.send_message(message.chat.id, f"Ваша нова стать: {user_gender}", reply_markup=kb_settings)
+        if gender_msg == "Чоловіча" or gender_msg == "Жіноча":
+            UserDataCRUD.upd_user_col(db_conn_name, user_data_cols["gender"], gender_msg, message.chat.id)
+
+            bot.send_message(message.chat.id, f"Ваша нова стать: {gender_msg}", reply_markup=kb_settings)
 
         elif message.text == "Назад":
             bot.send_message(message.chat.id, "Зміна статі скасована", reply_markup=kb_settings)
@@ -330,7 +343,7 @@ class SettingsMenu:
                              "Повторіть спробу.",
                              reply_markup=kb_gender_go_back)
 
-            bot.register_next_step_handler(message, SettingsMenu.change_user_gender)
+            bot.register_next_step_handler(message, SettingsMenu.edit_user_gender)
 
 
 # set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
@@ -344,15 +357,15 @@ set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKE
 
 
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
-    logging.info("--- HEROKU_DEPLOY --- TRUE ---")
+    logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
 
     @flask_app.route("/reset", methods=["GET"])
     def webhook():
         bot.remove_webhook()
-        logging.info("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
+        logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
 
         bot.set_webhook(set_webhook_url_heroku)
-        logging.info("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
+        logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
 
         return "FLASK-APP SET-WEBHOOK ROUTE", 200
 
@@ -373,3 +386,5 @@ else:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8443))
     flask_app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
+
+    # bot.polling(non_stop=True)

@@ -1,14 +1,14 @@
-# EXTERNAL MODULES
+# // EXTERNAL MODULES
 import telebot
 
 
-# REPLY MARKUP KEYBOARDS
-kb_reset_val = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True).row("Скасувати")
+# REPLY KEYBOARDS
+get_kb_reset_var = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True).row("Скасувати")
 
-kb_go_back_val = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True).row("Назад")
+get_kb_go_back_var = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True).row("Назад")
 
 
-def kb_main_menu_func():
+def get_kb_main_menu():
     kb_main_menu = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     kb_main_menu.row("Інфо про мене")
     kb_main_menu.row("Налаштування")
@@ -16,7 +16,7 @@ def kb_main_menu_func():
     return kb_main_menu
 
 
-def kb_gender_reset_func():
+def get_kb_gender_reset():
     kb_gender_reset = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     kb_gender_reset.row("Чоловіча")
     kb_gender_reset.row("Жіноча")
@@ -25,7 +25,7 @@ def kb_gender_reset_func():
     return kb_gender_reset
 
 
-def kb_gender_go_back_func():
+def get_kb_gender_go_back():
     kb_gender_go_back = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     kb_gender_go_back.row("Чоловіча")
     kb_gender_go_back.row("Жіноча")
@@ -34,7 +34,7 @@ def kb_gender_go_back_func():
     return kb_gender_go_back
 
 
-def kb_settings_func():
+def get_kb_settings():
     kb_settings = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     kb_settings.row("Змінити ім'я")
     kb_settings.row("Змінити вік")
