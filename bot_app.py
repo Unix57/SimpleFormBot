@@ -1,7 +1,6 @@
 # BUILT-IN MODULES
 import os
 import logging
-import requests
 
 # EXTERNAL MODULES
 import telebot
@@ -16,7 +15,7 @@ import bot_config as config
 # ENVIRONMENTAL VARIABLES
 TGM_BOT_TOKEN_DEFAULT = config.TGM_BOT_TOKEN_DEFAULT_1  # @simpleform4_bot
 
-TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_1
+TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_DEFAULT_1
 
 HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 
@@ -24,7 +23,7 @@ HEROKU_APP_NAME = config.HEROKU_APP_NAME_1
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
 
 flask_app = Flask(__name__)
-sslify = SSLify(flask_app)
+ssl_flask_app = SSLify(flask_app)
 
 # DEBUG LOGGER CONFIG
 logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.DEBUG)
@@ -33,6 +32,7 @@ logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=lo
 db_tables = local_db.db_tables_dict
 user_data_cols = local_db.user_data_cols_dict
 
+# DATABASE CONFIG
 db_conn_name = "bot_local_sqlite3.db"
 
 if __name__ == "__main__":
@@ -321,12 +321,11 @@ class SettingsMenu:
             bot.register_next_step_handler(message, SettingsMenu.change_user_gender)
 
 
-# test_webhook_url = "https://9c55-31-40-108-124.ngrok.io"
-
 # set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 # set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
 
 flask_app_url = f"https://{HEROKU_APP_NAME}.herokuapp.com/"
+bot_webhook_info_url = f"https://api.telegram.org/bot{TGM_BOT_TOKEN}/getWebhookInfo"
 
 set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
 set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKEN}/"
@@ -335,12 +334,12 @@ set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKE
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
     logging.debug("--- HEROKU_DEPLOY --- TRUE ---")
 
-    @flask_app.route("/", methods=["GET"])
+    @flask_app.route("/reset", methods=["GET"])
     def webhook():
         bot.remove_webhook()
         logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
 
-        bot.set_webhook(url=set_webhook_url_heroku)
+        bot.set_webhook(set_webhook_url_heroku)
         logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
 
         return "FLASK-APP SET-WEBHOOK ROUTE", 200
@@ -360,8 +359,5 @@ else:
 # Procfile TEST - web: python bot_app.py runserver 0.0.0.0:$PORT
 
 if __name__ == "__main__":
-    requests.get(flask_app_url)
-    logging.debug("--- HEROKU_DEPLOY --- REQUEST SET-WEBHOOK ---")
-
     port = int(os.environ.get("PORT", 8443))
     flask_app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
