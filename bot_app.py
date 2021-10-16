@@ -1,13 +1,8 @@
 # BUILT-IN MODULES
 import os
 import logging
-# import time
-# import sched
-# import threading
-
 
 # EXTERNAL MODULES
-# import requests
 import telebot
 from flask import Flask, request
 from flask_sslify import SSLify
@@ -352,11 +347,11 @@ if "HEROKU_DEPLOY" in list(os.environ.keys()):
 
         return "FLASK-APP SET-WEBHOOK ROUTE", 200
 
-    # # bot.remove_webhook()
-    # logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
-    #
-    # # bot.set_webhook(url=set_webhook_url_heroku)
-    # logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
+    bot.remove_webhook()
+    logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
+
+    bot.set_webhook(url=set_webhook_url_heroku)
+    logging.debug("--- HEROKU_DEPLOY --- WEBHOOK --- SET-WEBHOOK ---")
 
 else:
     logging.warning("--- HEROKU_DEPLOY --- NOT FOUND ---")
@@ -374,6 +369,3 @@ else:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8443))
     app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
-
-    # bot.remove_webhook()
-    # bot.polling(non_stop=True)
