@@ -63,7 +63,7 @@ user_states_dict = {
 }
 
 
-@bot.message_handler(func=lambda message: True, commands=["start"])
+@bot.message_handler(commands=["start"])
 def start_msg(message):
     bot.register_next_step_handler(message, UserPolling.get_user_name)
 
