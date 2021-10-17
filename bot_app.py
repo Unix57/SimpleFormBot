@@ -111,8 +111,8 @@ def menu_msg(message):
 
     else:
         bot.send_message(message.chat.id,
-                         "Функція меню доступна лише зареєстрованим користувачам.\n"
-                         "Для реєстрації пройдіть коротке анкетування.\n\n"
+                         "- Функція меню доступна лише зареєстрованим користувачам.\n"
+                         "- Для реєстрації пройдіть коротке анкетування.\n\n"
                          "Натисніть /start для початку анкетування")
 
 
@@ -186,8 +186,8 @@ def handler_text(message):
         else:
             if user_state[0] == user_states["state_default"] and not user_reg_flag:
                 bot.send_message(message.chat.id,
-                                 "Ви не зареєстровані у системі.\n"
-                                 "Для реєстрації пройдіть коротке анкетування.\n\n"
+                                 "- Ви не зареєстровані у системі.\n"
+                                 "- Для реєстрації пройдіть коротке анкетування.\n\n"
                                  "Натисніть /start для початку анкетування",
                                  reply_markup=hide_kb)
 
@@ -218,8 +218,8 @@ class UserPolling:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n"
-                             "Ім'я має містити від 2 до 20 символів.\n"
+                             "- Некоректний формат вводу.\n"
+                             "- Ім'я має містити від 2 до 20 символів.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_reset)
 
@@ -242,8 +242,8 @@ class UserPolling:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n"
-                             "Вік має бути цілим числом від 2 до 102 включно.\n"
+                             "- Некоректний формат вводу.\n"
+                             "- Вік має бути цілим числом від 2 до 102 включно.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_reset)
 
@@ -275,7 +275,7 @@ class UserPolling:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n"
+                             "- Некоректний формат вводу.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_gender_reset)
 
@@ -324,8 +324,8 @@ class SettingsMenu:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n"
-                             "Ім'я має містити від 2 до 20 символів включно.\n"
+                             "- Некоректний формат вводу.\n"
+                             "- Ім'я має містити від 2 до 20 символів включно.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_go_back)
 
@@ -348,8 +348,8 @@ class SettingsMenu:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n"
-                             "Вік має бути цілим числом від 2 до 102 включно.\n"
+                             "- Некоректний формат вводу.\n"
+                             "- Вік має бути цілим числом від 2 до 102 включно.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_go_back)
 
@@ -372,7 +372,7 @@ class SettingsMenu:
 
         else:
             bot.send_message(message.chat.id,
-                             "Некоректний формат вводу.\n"
+                             "- Некоректний формат вводу.\n"
                              "Повторіть спробу.",
                              reply_markup=kb_gender_go_back)
 
