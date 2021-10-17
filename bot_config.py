@@ -15,3 +15,9 @@ HEROKU_APP_NAME_env = os.getenv("HEROKU_APP_NAME")
 if HEROKU_APP_NAME_env is None:
     os.environ["HEROKU_APP_NAME"] = "simple-form-bot-v1"
     HEROKU_APP_NAME_env = os.getenv("HEROKU_APP_NAME")
+
+DB_CONN_NAME_env = os.getenv("DB_CONN_NAME")
+
+if DB_CONN_NAME_env is None:
+    os.environ["DB_CONN_NAME"] = "bot_local_sqlite3.db"
+    DB_CONN_NAME_env = os.getenv("HEROKU_APP_NAME")

@@ -12,7 +12,6 @@ import bot_sqlite_db_ops as local_db
 from bot_sqlite_db_ops import UserDataCRUD
 import bot_keyboards as keyboards
 import bot_config as config
-# from bot_subops import UserPolling, MainMenu, SettingsMenu
 
 # |---| ENVIRONMENTAL VARIABLES
 TGM_BOT_TOKEN_DEFAULT = config.TGM_BOT_TOKEN_DEFAULT_config  # @simpleform4_bot
@@ -22,15 +21,11 @@ TGM_BOT_TOKEN = config.TGM_BOT_TOKEN_env
 HEROKU_APP_NAME = config.HEROKU_APP_NAME_env
 
 # |---| TELEGRAM-BOT
-TOKEN_1 = "1627070316:AAFEB63rk0wG_bhaRcqGr3Ec6qXiBcJCab8"  # @testcode4_bot
 bot = telebot.TeleBot(TGM_BOT_TOKEN)
-
-# bot_webhook_info_url = f"https://api.telegram.org/bot{TGM_BOT_TOKEN}/getWebhookInfo"
 
 # |---| FLASK-APP
 flask_app = Flask(__name__)
 ssl_flask_app = SSLify(flask_app)
-# flask_app_url = f"https://{HEROKU_APP_NAME}.herokuapp.com/"
 
 # |---| DEBUG LOGGER CONFIG
 logging.basicConfig(format="%(asctime)s | %(levelname)s | %(message)s", level=logging.DEBUG)
@@ -40,7 +35,7 @@ db_tables = local_db.db_tables_dict
 user_data_cols = local_db.user_data_cols_dict
 
 # |---| DATABASE CONFIG
-db_conn_name = "bot_local_sqlite3.db"
+db_conn_name = config.DB_CONN_NAME_env
 
 if __name__ == "__main__":
     if os.path.exists(db_conn_name):
@@ -51,7 +46,6 @@ if __name__ == "__main__":
         local_db.init_database(db_conn_name)
 
         logging.warning(f"--- DATABASE | {db_conn_name} | --- INITIALIZED ---")
-
 
 # |---| REPLY KEYBOARDS
 hide_kb = telebot.types.ReplyKeyboardRemove()
@@ -88,9 +82,6 @@ settings_menu_states = {
 def start_msg(message):
     user_reg_flag = UserDataCRUD.check_user_reg_flag(db_conn_name, message.chat.id)
     user_check = UserDataCRUD.check_user_cid(db_conn_name, message.chat.id)
-
-    print(user_check)
-    print(user_reg_flag)
 
     if not user_check:
         UserDataCRUD.add_new_user(db_conn_name, message.chat.id)
@@ -386,17 +377,13 @@ class SettingsMenu:
                              reply_markup=kb_gender_go_back)
 
 
-# set_webhook_url_test_1 = "https://9c55-31-40-108-124.ngrok.io/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
-# set_webhook_url_heroku_1 = "https://simple-form-bot-v1.herokuapp.com/2090254399:AAGn_Njw75I9szKUmPKN-T37_F3Y12hAf18/"
-
-set_webhook_url_test = f"https://9c55-31-40-108-124.ngrok.io/{TGM_BOT_TOKEN}/"
-set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKEN}/"
-
 if "HEROKU_DEPLOY" in list(os.environ.keys()):
     logging.info("--- HEROKU_DEPLOY --- TRUE ---")
 
     @flask_app.route("/reset", methods=["GET"])
     def webhook():
+        set_webhook_url_heroku = f"https://{HEROKU_APP_NAME}.herokuapp.com/{TGM_BOT_TOKEN}/"
+
         bot.remove_webhook()
         logging.info("--- HEROKU_DEPLOY --- WEBHOOK --- REMOVE-WEBHOOK ---")
 
@@ -422,5 +409,3 @@ else:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8443))
     flask_app.run(host="0.0.0.0", port=port, threaded=True, debug=True)
-
-    # bot.polling(non_stop=True)
