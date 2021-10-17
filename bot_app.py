@@ -297,9 +297,9 @@ class MainMenu:
 
             bot.send_message(message.chat.id,
                              f"Інфо користувача @{message.chat.username}:\n"
-                             f"Ім'я: {user_name}\n"
-                             f"Вік: {user_age}\n"
-                             f"Стать: {user_gender}")
+                             f"- Ім'я: {user_name}\n"
+                             f"- Вік: {user_age}\n"
+                             f"- Стать: {user_gender}")
 
             bot.send_message(message.chat.id, "/menu\nГоловне меню:", reply_markup=kb_main_menu)
 
